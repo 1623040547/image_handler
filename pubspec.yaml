@@ -1,0 +1,27 @@
+name: resource_handler
+description: "A Flutter project to handle image in our project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.2 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: any
+  analyzer_query:
+    path: ../analyzer_query
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: any
+
+
+flutter:
+  uses-material-design: true
+

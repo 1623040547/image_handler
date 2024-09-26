@@ -1,0 +1,32 @@
+[
+  {
+    "configName": "image",
+    "basePathName": "imageBasePath",
+    "basePath": "lib/resources/images",
+    "className": "ImageNames",
+    "meta": {
+      "className": "ImageMeta",
+      "params": [
+        {
+          "name": "pattern",
+          "type": "String"
+        },
+        {
+          "name": "citeArray",
+          "type": "List<String>"
+        }
+      ]
+    },
+    "strategy": {
+      "needCopy": false,
+      "needOverride": true,
+      "removeNoCiteSource": true,
+      "removeNoCiteStr": true
+    },
+    "imageStrategy": {
+      "ratio": 3,
+      "lastPattern": "@${num}x"
+    }
+  }
+]
+
