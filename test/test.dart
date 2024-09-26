@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:analyzer_query/proj_path/package.dart';
 import 'package:resource_handler/config.dart';
+import 'package:resource_handler/resource_tree/yaml_parse.dart';
 
 void main() {
-  configDartTest();
+  // configDartTest();
+  yamlParseDartTest();
 }
 
 void configDartTest() {
@@ -14,5 +16,13 @@ void configDartTest() {
       .readAsStringSync());
   for (var e in config) {
     print(e);
+  }
+}
+
+void yamlParseDartTest() {
+  for (var element
+      in YamlParser(r"C:\Users\16230\StudioProjects\my_healer\pubspec.yaml")
+          .validUri) {
+    print(element.path);
   }
 }
