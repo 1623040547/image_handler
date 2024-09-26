@@ -15,19 +15,27 @@ List<ResourceConfig> readResourceConfig(String jsonString) {
 class ResourceConfig {
   ResourceConfig._();
 
+  ///设置名称，表明本次配置是针对那一类资源。
+  ///例如,`image`、`lottie`、`font`。
   late final String configName;
 
-  late final String basePathName;
-
+  ///资源文件的基路径，即所有同级资源文件的公共路径
   late final String basePath;
 
+  ///资源管理类的类名
   late final String className;
 
+  ///资源管理类中基路径的定义
+  late final String basePathName;
+
+  ///资源注解定义，注解用于处理一些非直接引用的资源对象
   late final ResourceMeta? meta;
 
-  late final ResourceStrategy? strategy;
+  ///资源控制策略
+  late final ResourceStrategy strategy;
 
-  late final ImageStrategy? imageStrategy;
+  ///图片资源控制策略
+  late final ImageStrategy imageStrategy;
 
   static ResourceConfig _fromJson(Map<String, dynamic> json) {
     final model = ResourceConfig._();
@@ -45,13 +53,13 @@ class ResourceConfig {
     if (json["strategy"] != null) {
       model.strategy = ResourceStrategy._fromJson(json["strategy"]);
     } else {
-      model.strategy = null;
+      model.strategy = ResourceStrategy._fromJson({});
     }
 
     if (json["imageStrategy"] != null) {
       model.imageStrategy = ImageStrategy._fromJson(json["imageStrategy"]);
     } else {
-      model.imageStrategy = null;
+      model.imageStrategy = ImageStrategy._fromJson({});
     }
 
     return model;
@@ -77,7 +85,7 @@ class ResourceMeta {
 
   static ResourceMeta _fromJson(Map<String, dynamic> json) {
     final model = ResourceMeta._();
-    model.className = json["className"] ?? ["ImageMeta"];
+    model.className = json["className"] ?? "ImageMeta";
     final param = json["params"];
     if (param is List) {
       model.params = param.map((e) => ResourceMetaParam._fromJson(e)).toList();
@@ -112,16 +120,19 @@ class ResourceMetaParam {
 class ResourceStrategy {
   ResourceStrategy._();
 
+  bool disable = false;
+
   bool needCopy = false;
 
-  bool needOverride = false;
+  bool needOverride = true;
 
-  bool removeNoCiteSource = false;
+  bool removeNoCiteSource = true;
 
-  bool removeNoCiteStr = false;
+  bool removeNoCiteStr = true;
 
   static ResourceStrategy _fromJson(Map<String, dynamic> json) {
     final model = ResourceStrategy._();
+    model.disable = json["disable"] ?? model.disable;
     model.needCopy = json["needCopy"] ?? model.needCopy;
     model.needOverride = json["needOverride"] ?? model.needOverride;
     model.removeNoCiteSource =
@@ -134,9 +145,13 @@ class ResourceStrategy {
 class ImageStrategy {
   ImageStrategy._();
 
+  bool disable = false;
+
   int size = 3;
 
-  String endWithPattern = "";
+  String sizeFolder = "{num}.0x";
+
+  String endWithPattern = "@{num}x";
 
   String containPattern = "";
 
@@ -144,6 +159,7 @@ class ImageStrategy {
 
   static ImageStrategy _fromJson(Map<String, dynamic> json) {
     final model = ImageStrategy._();
+    model.disable = json["disable"] ?? model.disable;
     model.size = json["size"] ?? model.size;
     model.startWithPattern = json["startWithPattern"] ?? model.startWithPattern;
     model.endWithPattern = json["endWithPattern"] ?? model.endWithPattern;
