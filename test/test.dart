@@ -23,16 +23,17 @@ void configDartTest() {
 
 void yamlParseDartTest() {
   for (var element
-      in YamlParser(r"C:\Users\16230\StudioProjects\my_healer\pubspec.yaml")
-          .validUri) {
+      in YamlParser("${rootProj.projPath}/pubspec.yaml").validUri) {
     print(element.path);
   }
 }
 
 void resourceTreeDartTest() {
-  final uri =
-      YamlParser(r"C:\Users\16230\StudioProjects\my_healer\pubspec.yaml")
-          .validUri;
+  final uri = YamlParser("${rootProj.projPath}/pubspec.yaml").validUri;
   final tree = ResourceTree(uri);
-  print(tree);
+  ResourceNode? node = tree.header?.children.first.copy();
+  ResourceNode node2 =
+      tree.manage(Uri.parse("${rootProj.projPath}/lib/resources/"));
+ final files = node2.getManagedFile();
+ for (var element in files) { }
 }
