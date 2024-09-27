@@ -4,6 +4,10 @@
     "basePathName": "imageBasePath",
     "basePath": "lib/resources/images",
     "className": "ImageNames",
+    "manageType": [
+      "png",
+      "json"
+    ],
     "meta": {
       "className": "ImageMeta",
       "params": [

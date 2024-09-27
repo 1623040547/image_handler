@@ -28,6 +28,9 @@ class ResourceConfig {
   ///资源管理类中基路径的定义
   late final String basePathName;
 
+  ///指定管理文件的类型
+  late final List<String> manageType;
+
   ///资源注解定义，注解用于处理一些非直接引用的资源对象
   late final ResourceMeta? meta;
 
@@ -43,6 +46,9 @@ class ResourceConfig {
     model.basePathName = json["basePathName"] ?? "imageBasePath";
     model.basePath = json["basePath"] ?? "lib/resources/images";
     model.className = json["className"] ?? "ImageNames";
+    model.manageType = ((json["manageType"] ?? ["png"]) as List)
+        .map((e) => e.toString())
+        .toList();
 
     if (json["meta"] != null) {
       model.meta = ResourceMeta._fromJson(json["meta"]);
