@@ -12,8 +12,6 @@ class ClassBuilder extends Builder {
 
   String get className => config.className;
 
-  String get basePathName => config.basePathName;
-
   String _sourceCode = "";
 
   String get sourceCode => '$_sourceCode}';
@@ -21,7 +19,7 @@ class ClassBuilder extends Builder {
   ClassBuilder(super.config) {
     _sourceCode = """
     class $className {
-        const String $basePathName = '$basePath';
+        const String _basePath = '$basePath';
     """;
   }
 

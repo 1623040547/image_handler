@@ -13,18 +13,18 @@
       "params": [
         {
           "name": "pattern",
-          "type": "String"
+          "type": "regex"
         },
         {
           "name": "citeArray",
-          "type": "List<String>"
+          "type": "array"
         }
       ]
     },
     "strategy": {
       "needCopy": false,
       "needOverride": true,
-      "removeNoCiteSource": true,
+      "removeNoCiteResource": true,
       "removeNoCiteStr": true
     },
     "imageStrategy": {

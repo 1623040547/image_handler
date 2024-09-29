@@ -2,22 +2,26 @@ import 'package:analyzer_query/proj_path/dart_file.dart';
 import 'package:analyzer_query/tester.dart';
 import 'package:resource_handler/finder/finder.dart';
 
-class ClassFinder extends Finder {
+
+class MetaFinder extends Finder {
+  bool get isValid => config.meta != null;
+
+  String get className => config.meta!.className;
+
   final List<DartFile> classDefine = [];
 
   final List<DartFile> classRef = [];
 
-  ClassFinder(super.config) {
-    rootDart.acceptPack = (pack) => pack.isMainProj;
-    rootDart.acceptDartString = (f) => f.contains(config.className);
+  MetaFinder(super.config) : assert(config.meta != null) {
     final files = rootDart.flush();
+    rootDart.acceptPack = (pack) => pack.isMainProj;
+    rootDart.acceptDartString = (f) => f.contains(className);
     for (var file in files) {
       TestFile.fromString(
         file.fileString,
         breathVisit: true,
         visit: (node, token, controller) {
-          if (node is ClassDeclaration &&
-              node.name.toString() == config.className) {
+          if (node is ClassDeclaration && node.name.toString() == className) {
             classDefine.add(file);
             controller.stop();
           }
@@ -28,6 +32,5 @@ class ClassFinder extends Finder {
         },
       );
     }
-    assert(classDefine.length == 1, 'Class define just permit 1');
   }
 }

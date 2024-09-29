@@ -15,9 +15,8 @@ void main() {
 
 void configDartTest() {
   print(defaultResourceConfig);
-  List<ResourceConfig> config = readResourceConfig(File(
-          '${mainProj.projPath}/test/test_config.json')
-      .readAsStringSync());
+  List<ResourceConfig> config = readResourceConfig(
+      File('${mainProj.projPath}/test/test_config.json').readAsStringSync());
   for (var e in config) {
     print(e);
   }
@@ -41,10 +40,10 @@ void resourceTreeDartTest() {
 }
 
 void classFinderDartTest() {
-  List<ResourceConfig> config = readResourceConfig(File(
-          '${mainProj.projPath}/test/test_config.json')
-      .readAsStringSync());
+  List<ResourceConfig> config = readResourceConfig(
+      File('${mainProj.projPath}/test/test_config.json').readAsStringSync());
   for (var e in config) {
-    ClassFinder(e);
+    final finder = ClassFinder(e);
+    print(finder);
   }
 }

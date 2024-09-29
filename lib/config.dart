@@ -25,9 +25,6 @@ class ResourceConfig {
   ///资源管理类的类名
   late final String className;
 
-  ///资源管理类中基路径的定义
-  late final String basePathName;
-
   ///指定管理文件的类型
   late final List<String> manageType;
 
@@ -43,7 +40,6 @@ class ResourceConfig {
   static ResourceConfig _fromJson(Map<String, dynamic> json) {
     final model = ResourceConfig._();
     model.configName = json["configName"] ?? "image";
-    model.basePathName = json["basePathName"] ?? "imageBasePath";
     model.basePath = json["basePath"] ?? "lib/resources/images";
     model.className = json["className"] ?? "ImageNames";
     model.manageType = ((json["manageType"] ?? ["png"]) as List)
@@ -76,7 +72,6 @@ class ResourceConfig {
     return """
 className: $className,
 configName: $configName,
-basePathName: $basePathName,
 basePath: $basePath,
     """;
   }
@@ -132,7 +127,7 @@ class ResourceStrategy {
 
   bool needOverride = true;
 
-  bool removeNoCiteSource = true;
+  bool removeNoCiteResource = true;
 
   bool removeNoCiteStr = true;
 
@@ -141,8 +136,8 @@ class ResourceStrategy {
     model.disable = json["disable"] ?? model.disable;
     model.needCopy = json["needCopy"] ?? model.needCopy;
     model.needOverride = json["needOverride"] ?? model.needOverride;
-    model.removeNoCiteSource =
-        json["removeNoCiteSource"] ?? model.removeNoCiteSource;
+    model.removeNoCiteResource =
+        json["removeNoCiteSource"] ?? model.removeNoCiteResource;
     model.removeNoCiteStr = json["removeNoCiteStr"] ?? model.removeNoCiteStr;
     return model;
   }
