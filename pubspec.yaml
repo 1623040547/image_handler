@@ -12,8 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: any
+  image: any
   analyzer_query:
-    path: ../analyzer_query
+    path: extern/analyzer_query
 
 dev_dependencies:
   flutter_test:

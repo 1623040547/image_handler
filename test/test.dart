@@ -1,16 +1,15 @@
 import 'dart:io';
-
 import 'package:analyzer_query/proj_path/package.dart';
 import 'package:resource_handler/config.dart';
 import 'package:resource_handler/finder/class_finder.dart';
-import 'package:resource_handler/resource_tree/resource_tree.dart';
-import 'package:resource_handler/resource_tree/yaml_parse.dart';
+import 'package:resource_handler/tools/resource_tree/resource_tree.dart';
+import 'package:resource_handler/tools/resource_tree/yaml_parse.dart';
 
-void main() {
+Future<void> main() async {
   // configDartTest();
-  // yamlParseDartTest();
+  await yamlParseDartTest();
   // resourceTreeDartTest();
-  classFinderDartTest();
+  // classFinderDartTest();
 }
 
 void configDartTest() {
@@ -22,11 +21,34 @@ void configDartTest() {
   }
 }
 
-void yamlParseDartTest() {
-  for (var element
-      in YamlParser("${rootProj.projPath}/pubspec.yaml").validUri) {
-    print(element.path);
-  }
+Future<void> yamlParseDartTest() async {
+  // final doc = loadYamlDocument("${rootProj.projPath}/pubspec.yaml");
+  // for (var element
+  //     in YamlParser("${rootProj.projPath}/pubspec.yaml").validUri) {
+  //   print(element.path);
+  // }
+  // print(modifiable);
+  // final doc = loadYamlDocument(test_);
+  // var settings =loadYaml( test_);
+  // var map = settings.valueMap;
+  // map.remove("sentry");
+  // settings.save();
+
+  // print(map);
+  // doc.contents;
+  // print(doc.span.text);
+  // final map = doc.contents.value as YamlMap;
+  // for(var key in map.nodes.keys) {
+  //    key = key as YamlNode;
+  //    print(key);
+  // }
+  // for (var element in map.nodes.values) {
+  //   final s = element.span;
+  //   s.start.offset;
+  //   s.end.offset;
+  //   final text = s.text;
+  //   print(s.text + '\n\n');
+  // }
 }
 
 void resourceTreeDartTest() {

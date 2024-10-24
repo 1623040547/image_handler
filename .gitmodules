@@ -1,0 +1,3 @@
+[submodule "extern/analyzer_query"]
+	path = extern/analyzer_query
+	url = git@codeup.aliyun.com:5ebb5f8b8123212b59d581b4/analyzer_query.git
