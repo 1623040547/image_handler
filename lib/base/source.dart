@@ -4,6 +4,7 @@ import 'package:resource_handler/base/resource.dart';
 
 abstract class DataSourcePorc<E> extends ResourceHandler<E> {}
 
+///文件类型的数据源处理
 abstract class FileDataSourcePorc<E> extends DataSourcePorc<E> {
   ///数据来源所在的根目录
   final String rootFolder;
@@ -31,4 +32,7 @@ abstract class FileDataSourcePorc<E> extends DataSourcePorc<E> {
       }
     });
   }
+
+  ///判断读取文件是否符合规范
+  bool isValid(File f);
 }

@@ -67,7 +67,7 @@ class ImageSource {
 
   ///图片转移
   void moveTo(String assetPath) {
-    if (!checkValid()) {
+    if (!isValid()) {
       return;
     }
     if (imageX1 != null) {
@@ -94,7 +94,7 @@ class ImageSource {
   }
 
   ///检查命名合法性
-  bool checkValid() {
+  bool isValid() {
     try {
       DartFormatter formatter = DartFormatter(indent: 0);
       formatter.format("""const String $imageName = '$imageName.$tailFix'; """);
@@ -108,13 +108,10 @@ class ImageSource {
   static bool isImage(String filePath) =>
       ['jpg', 'jpeg', 'png', 'gif', 'bmp'].contains(
         Uri.parse(filePath).pathSegments.last.split('.').last,
-      );
+      ) &&
+      !Uri.parse(filePath).pathSegments.last.startsWith('.');
 
-  static ImageSource? archive(File f) {
-    ///忽略隐藏文件与非指定格式照片
-    if (!isImage(f.path) || f.uri.pathSegments.last.startsWith('.')) {
-      return null;
-    }
+  static ImageSource archive(File f) {
     String imageName = f.uri.imageName;
     String tailFix = f.uri.imageType;
     final fullImageName = '$imageName.$tailFix';
@@ -132,7 +129,7 @@ class ImageSource {
         imageX3: f.uri.isX3 ? f : null,
       );
     }
-    return source;
+    return _sourceMap[fullImageName]!;
   }
 }
 

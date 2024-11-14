@@ -16,7 +16,7 @@ abstract class ResourceHandler<E> {
 
   ResourceHandler link(ResourceHandler handler) {
     _next = handler;
-    _front = handler;
+    handler._front = this;
     return handler;
   }
 

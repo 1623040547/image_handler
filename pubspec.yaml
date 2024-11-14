@@ -24,5 +24,8 @@ dev_dependencies:
 
 
 flutter:
+  assets:
+    - lib/resources/images/3.0x/
+    - lib/resources/images/2.0x/
+    - lib/resources/images/
   uses-material-design: true
-

@@ -2,7 +2,6 @@ import 'package:analyzer_query/proj_path/dart_file.dart';
 import 'package:analyzer_query/tester.dart';
 import 'package:resource_handler/finder/finder.dart';
 
-
 class MetaFinder extends Finder {
   bool get isValid => config.meta != null;
 
