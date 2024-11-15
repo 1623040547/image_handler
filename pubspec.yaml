@@ -22,10 +22,4 @@ dev_dependencies:
 
   flutter_lints: any
 
-
-flutter:
-  assets:
-    - lib/resources/images/3.0x/
-    - lib/resources/images/2.0x/
-    - lib/resources/images/
-  uses-material-design: true
+uses-material-design: true

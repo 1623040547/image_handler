@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:analyzer_query/mini/log.dart';
 import 'package:analyzer_query/proj_path/dart_file.dart';
 import 'package:analyzer_query/tester.dart';
@@ -8,12 +7,12 @@ import 'package:resource_handler/base/base.dart';
 import 'data.dart';
 
 void main() {
-  ImageResource.build(
-    "/Users/mac/StudioProjects/resource_handler/test/1",
-    "/Users/mac/StudioProjects/my_healer",
-  );
+  // ImageResource.build(
+  //   "/Users/mac/StudioProjects/resource_handler/test/1",
+  //   "/Users/mac/StudioProjects/diviner",
+  // );
   // TestFile.fromFile(
-  //         "/Users/mac/StudioProjects/my_healer/lib/common/images.dart")
+  //         "/Users/mac/StudioProjects/resource_handler/lib/dsl/image/proc.dart")
   //     .showNodeDict();
 }
 
@@ -27,10 +26,7 @@ class ImageHandleGrammar {
 
   String get defaultBaseName => ImageHandlerConfig.instance.defaultBaseName;
 
-  String get defineBasePath => ImageHandlerConfig.instance.binding
-      .split('/')
-      .where((e) => e.isNotEmpty)
-      .join('/');
+  String get defaultBasePath => ImageHandlerConfig.instance.defaultBasePath;
 
   void compilationUnitRule(CompilationUnit target) {
     for (var member in target.declarations) {
@@ -76,10 +72,15 @@ class ImageHandleGrammar {
       assert(flag != null);
 
       if (member is FieldDeclaration) {
+        assert(member.isStatic);
         assert(member.fields.variables.isNotEmpty);
         final name = member.fields.variables.first.name.toString();
         assert(name != defaultBaseName ||
-            (name == defaultBaseName && flag == defineBasePath));
+            (name == defaultBaseName && flag == defaultBasePath));
+      }
+
+      if (member is MethodDeclaration) {
+        assert(member.isStatic);
       }
 
       for (var element in member.metadata) {
@@ -89,12 +90,17 @@ class ImageHandleGrammar {
   }
 
   void listLiteralRule(ListLiteral target) {
+    assert(target.elements.isNotEmpty);
     for (var outer in target.elements) {
       assert(outer is SimpleStringLiteral || outer is ListLiteral);
       if (outer is ListLiteral) {
+        assert(outer.elements.isNotEmpty);
         for (var inner in outer.elements) {
-          assert(inner is SimpleStringLiteral);
+          assert(inner is SimpleStringLiteral && inner.value.isNotEmpty);
         }
+      }
+      if (outer is SimpleStringLiteral) {
+        assert(outer.value.isNotEmpty);
       }
     }
   }
@@ -136,13 +142,22 @@ class ImageHandlerConfig {
 
   final String binding = 'lib/resources/images/';
 
-  final String bindingX2 = 'lib/resources/images/2.0x/';
+  String get defaultBasePath =>
+      binding.split('/').where((e) => e.isNotEmpty).join('/');
 
-  final String bindingX3 = 'lib/resources/images/3.0x/';
+  String get bindingX2 => '$defaultBasePath/2.0x/';
+
+  String get bindingX3 => '$defaultBasePath/3.0x/';
 
   final bool isOverWrite = false;
 
   final bool needImageMeta = true;
+
+  ///清理没有被定义的图片
+  final bool cleanUndefineImage = true;
+
+  ///清理没有被引用的图片
+  final bool cleanNoCitedImageDefine = true;
 }
 
 ///图片处理运行起点与处理全流程共享变量存储
@@ -154,10 +169,14 @@ class ImageResource {
           .link(ImageBindingPorc('$projPath/pubspec.yaml'))
           .link(ImageDestinationPorc())
           .link(ImageDefinePorc(projPath))
-          .link(ImageCitePorc())
+          .link(ImageCitePorc(projPath))
           .exec(ImageResource(projPath));
 
   final String projPath;
+
+  late DartFile defineFile;
+
+  late ClassDeclaration declaration;
 
   ///外部图片源
   final Set<ImageSource> sources = {};
@@ -169,8 +188,6 @@ class ImageResource {
   StringBuffer codeBuffer = StringBuffer();
 
   ///通过语法检查后获取的有效数据
-  final Map<String, TopLevelVariableDeclaration> mappingNameToConstArray = {};
-
   final Map<ClassMember, String> mappingMemberToName = {};
 
   final Map<String, ClassMember> mappingNameToMember = {};
@@ -186,6 +203,8 @@ class ImageResource {
 class ImageSourcePorc<E extends ImageResource> extends FileDataSourcePorc<E> {
   ImageSourcePorc(super.rootFolder);
 
+  Set<ImageSource> get sources => resource.sources;
+
   @override
   build() {
     recursive(fileGetter: (f) {
@@ -194,7 +213,7 @@ class ImageSourcePorc<E extends ImageResource> extends FileDataSourcePorc<E> {
         return;
       }
       final image = ImageSource.archive(f);
-      resource.sources.add(image);
+      sources.add(image);
     });
   }
 
@@ -247,13 +266,9 @@ class ImageDestinationPorc<E extends ImageResource>
     extends DataDestinationPorc<E> {
   List<String> get bindings => ImageHandlerConfig.instance.bindings;
 
-  bool get isOverwrite => ImageHandlerConfig.instance.isOverWrite;
-
   bool isValid(File f) => ImageSource.isImage(f.path);
 
   String get projPath => resource.projPath;
-
-  Set<ImageSource> get sources => resource.sources;
 
   Set<ImageSource> get assetSources => resource.assetSources;
 
@@ -265,7 +280,7 @@ class ImageDestinationPorc<E extends ImageResource>
       if (!directory.existsSync()) {
         directory.createSync(recursive: true);
       }
-      directory.list().forEach((f) {
+      directory.listSync().forEach((f) {
         final file = File(f.path);
         if (file.existsSync() && isValid(file)) {
           final image = ImageSource.archive(file);
@@ -273,24 +288,7 @@ class ImageDestinationPorc<E extends ImageResource>
         }
       });
     }
-    handleOverwrite();
-  }
-
-  void handleOverwrite() {
-    for (var source in sources.toSet()) {
-      bool isDuplicate = assetSources
-          .where((s) => s.fullImageName == source.fullImageName)
-          .isNotEmpty;
-      if (isDuplicate && !isOverwrite) {
-        sources.remove(source);
-        analyzerLog('Duplicate Image: ${source.fullImageName}');
-      } else if (source.isValid()) {
-        source.shrinkImage();
-      } else {
-        sources.remove(source);
-        analyzerLog('Invalid Image\'s Name: ${source.fullImageName}');
-      }
-    }
+    // handleOverwrite();
   }
 }
 
@@ -311,17 +309,13 @@ class ImageDefinePorc<E extends ImageResource> extends DataDefinePorc<E> {
   String get defineClassPath =>
       ImageHandlerConfig.instance.defaultClassDefinePath;
 
-  String get defineBaseName => ImageHandlerConfig.instance.defaultBaseName;
+  String get defaultBaseName => ImageHandlerConfig.instance.defaultBaseName;
 
-  String get defineBasePath => ImageHandlerConfig.instance.binding
-      .split('/')
-      .where((e) => e.isNotEmpty)
-      .join('/');
+  String get defaultBasePath => ImageHandlerConfig.instance.defaultBasePath;
 
   bool get needMeta => ImageHandlerConfig.instance.needImageMeta;
 
-  Map<String, TopLevelVariableDeclaration> get mappingNameToConstArray =>
-      resource.mappingNameToConstArray;
+  final Map<String, TopLevelVariableDeclaration> mappingNameToConstArray = {};
 
   Map<ClassMember, String> get mappingMemberToName =>
       resource.mappingMemberToName;
@@ -344,6 +338,8 @@ class ImageDefinePorc<E extends ImageResource> extends DataDefinePorc<E> {
   void build() {
     handleClassDefine();
     final unit = declaration!.parent as CompilationUnit;
+    resource.defineFile = target!;
+    resource.declaration = declaration!;
     ImageHandleGrammar(target!.fileString).compilationUnitRule(unit);
     dataFromImageDefine();
   }
@@ -406,7 +402,7 @@ class ImageDefinePorc<E extends ImageResource> extends DataDefinePorc<E> {
     file.createSync(recursive: true);
     file.writeAsStringSync(DartFormatter().format("""
       class $defineClassName {
-        static const String $defineBaseName = '$defineBasePath';
+        static const String $defaultBaseName = '$defaultBasePath';
       }
       
       ${needMeta ? _imageMetaSource : ""}
@@ -463,9 +459,9 @@ class ImageDefinePorc<E extends ImageResource> extends DataDefinePorc<E> {
         },
       );
     }
-    if (!mappingNameToMember.keys.contains(defineBaseName)) {
+    if (!mappingNameToMember.keys.contains(defaultBaseName)) {
       codeBuffer.writeln("""
-      static const String  $defineBaseName = '$defineBasePath';
+      static const String  $defaultBaseName = '$defaultBasePath';
       """);
     }
   }
@@ -487,8 +483,8 @@ class ImageDefinePorc<E extends ImageResource> extends DataDefinePorc<E> {
         } else if (e is InterpolationExpression &&
             e.expression is SimpleIdentifier) {
           final name = (e.expression as SimpleIdentifier).token.toString();
-          if (name == defineBaseName) {
-            path += defineBasePath;
+          if (name == defaultBaseName) {
+            path += defaultBasePath;
           } else {
             _dataFromAnnotationDefine(member);
             isDirect = false;
@@ -561,8 +557,226 @@ class ImageDefinePorc<E extends ImageResource> extends DataDefinePorc<E> {
 /// code define -> asset
 /// use code define  -> code define
 class ImageCitePorc<E extends ImageResource> extends DataCitePorc<E> {
+  ImageCitePorc(super.projPath);
+
+  final List<ImageSource> undefineAssetSources = [];
+
+  final List<ClassMember> citedMember = [];
+
+  final List<ClassMember> discardMember = [];
+
+  Set<ImageSource> get sources => resource.sources;
+
+  Set<ImageSource> get assetSources => resource.assetSources;
+
+  bool get isOverwrite => ImageHandlerConfig.instance.isOverWrite;
+
+  bool get cleanUndefine => ImageHandlerConfig.instance.cleanUndefineImage;
+
+  bool get cleanNoCite => ImageHandlerConfig.instance.cleanNoCitedImageDefine;
+
+  String get defineBaseName => ImageHandlerConfig.instance.defaultBaseName;
+
+  StringBuffer get codeBuffer => resource.codeBuffer;
+
+  String get binding => ImageHandlerConfig.instance.binding;
+
+  String get className => ImageHandlerConfig.instance.className;
+
+  DartFile get file => resource.defineFile;
+
+  Map<String, ClassMember> get mappingNameToMember =>
+      resource.mappingNameToMember;
+
+  Map<ClassMember, String> get mappingMemberToName =>
+      resource.mappingMemberToName;
+
+  Map<String, ClassMember> get mappingPathToMember =>
+      resource.mappingPathToMember;
+
+  Map<List<List<String>>, ClassMember> get mappingPatternsToMember =>
+      resource.mappingPatternsToMember;
+
+  Map<List<String>, ClassMember> get mappingArraysToMember =>
+      resource.mappingArraysToMember;
+
+  ClassDeclaration get declaration => resource.declaration;
+
   @override
-  void build() {}
+  void build() {
+    ///处理声明是否引用
+    handleCitedMember();
+
+    ///移除没有引用的图片类成员
+    removeNoCiteMember();
+
+    ///移除没有声明的图片资源
+    removeNoDefineAssetImage();
+
+    ///处理图片命名冲突
+    handleOverwrite();
+
+    ///写入需要导入的资源文件
+    writeSource();
+  }
+
+  ///因为内部成员只能是静态类，针对这些成员的引用只有一种格式
+  ///即[className].[member]
+  void handleCitedMember() {
+    projDart.acceptPack = (pack) => pack.isMainProj;
+    projDart.acceptDartString = (fs) => fs.contains(className);
+    for (var f in projDart.flush()) {
+      TestFile.fromString(f.fileString, visit: (node, token, controller) {
+        ///寻找[MethodInvocation]&[PrefixedIdentifier]
+        if (node is MethodInvocation && node.target?.toString() == className) {
+          final name = node.methodName.toString();
+          citedMember.add(mappingNameToMember[name]!);
+        }
+        if (node is PrefixedIdentifier && node.prefix.toString() == className) {
+          final name = node.identifier.toString();
+          citedMember.add(mappingNameToMember[name]!);
+        }
+      });
+    }
+    citedMember.add(mappingNameToMember[defineBaseName]!);
+  }
+
+  void removeNoCiteMember() {
+    for (var member in mappingMemberToName.keys) {
+      if (!citedMember.contains(member) && cleanNoCite) {
+        final token = member.testToken(file);
+        File(file.filePath).writeAsStringSync(
+            file.latestFileString.substring(0, token.start) +
+                ' ' * token.name.length +
+                file.latestFileString.substring(member.end));
+        discardMember.add(member);
+      }
+    }
+  }
+
+  void removeNoDefineAssetImage() {
+    for (var source in assetSources) {
+      if (_pathInclude(source) ||
+          _arrayInclude(source) ||
+          _patternInclude(source)) {
+        continue;
+      } else if (cleanUndefine) {
+        source.delete();
+        undefineAssetSources.add(source);
+      }
+    }
+  }
+
+  void handleOverwrite() {
+    for (var source in sources.toSet()) {
+      bool isDuplicate = assetSources
+          .where(
+            (s) =>
+                s.fullImageName == source.fullImageName &&
+                !undefineAssetSources.contains(s),
+          )
+          .isNotEmpty;
+      if (isDuplicate && !isOverwrite) {
+        sources.remove(source);
+        analyzerLog('Duplicate Image: ${source.fullImageName}');
+      } else if (source.isValid()) {
+        source.shrinkImage();
+      } else {
+        sources.remove(source);
+        analyzerLog('Invalid Image\'s Name: ${source.fullImageName}');
+      }
+    }
+  }
+
+  void writeSource() {
+    for (var source in sources) {
+      codeBuffer.writeln("""
+        static const String  ${source.imageName} = '\$$defineBaseName/${source.fullImageName}';
+      """);
+      source.moveTo('$projPath/$binding');
+    }
+
+    final token = declaration.testToken(file);
+
+    File(file.filePath).writeAsStringSync(
+      DartFormatter().format(
+        file.latestFileString.substring(0, token.end - 1) +
+            codeBuffer.toString() +
+            file.latestFileString.substring(token.end - 1),
+      ),
+    );
+  }
+
+  bool _pathInclude(ImageSource source) {
+    for (var path in mappingPathToMember.keys) {
+      if (Uri.parse(path).pathSegments.last == source.fullImageName) {
+        final member = mappingPathToMember[path];
+        return !discardMember.contains(member);
+      }
+    }
+    return false;
+  }
+
+  ///pattern匹配具有三种格式
+  ///A*
+  ///A*B
+  ///A*B1*BN*C
+  bool _patternInclude(ImageSource source) {
+    final name = source.fullImageName;
+    bool isMatch = false;
+    for (var patterns in mappingPatternsToMember.keys) {
+      for (var pattern in patterns) {
+        isMatch |= _patternMatch(pattern, name);
+        if (isMatch) {
+          final member = mappingPatternsToMember[patterns];
+          isMatch = !discardMember.contains(member);
+          break;
+        }
+      }
+    }
+    return isMatch;
+  }
+
+  bool _arrayInclude(ImageSource source) {
+    final name = source.fullImageName;
+    for (var array in mappingArraysToMember.keys) {
+      for (var part in array) {
+        if (name.toLowerCase().contains(part.toLowerCase())) {
+          final member = mappingArraysToMember[array];
+          return !discardMember.contains(member);
+        }
+      }
+    }
+    return false;
+  }
+
+  bool _patternMatch(List<String> pattern, String match) {
+    final patternSlice = pattern.expand((e) => [...e.split(''), '']).toList();
+    final matchSlice = match.split('');
+    if (pattern.length > 1) {
+      patternSlice.removeLast();
+    }
+    int ptr = 0;
+    for (int i = 0; i < matchSlice.length; i++) {
+      if (ptr > patternSlice.length - 1) {
+        break;
+      }
+      if (patternSlice[ptr] == matchSlice[i]) {
+        ptr += 1;
+      } else if (patternSlice[ptr] == '') {
+        if (ptr + 1 > patternSlice.length - 1) {
+          ptr += 1;
+          break;
+        }
+        if (patternSlice[ptr + 1] == matchSlice[i]) {
+          ptr += 2;
+        }
+      } else {
+        break;
+      }
+    }
+    return ptr > patternSlice.length - 1;
+  }
 }
 
 ///代码段定义，被[ImageDefinePorc]使用
