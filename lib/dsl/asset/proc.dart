@@ -1,176 +1,20 @@
 import 'dart:io';
+
 import 'package:analyzer_query/mini/log.dart';
 import 'package:analyzer_query/proj_path/dart_file.dart';
 import 'package:analyzer_query/tester.dart';
-import 'package:resource_handler/base/base.dart';
+import 'package:resource_handler/common/grammar/grammar_1.dart';
+import 'package:resource_handler/dsl/asset/data.dart';
 
-import 'data.dart';
+import '../../base/base.dart';
 
-void main() {
-  // ImageResource.build(
-  //   "/Users/mac/StudioProjects/resource_handler/test/1",
-  //   "/Users/mac/StudioProjects/diviner",
-  // );
-  // TestFile.fromFile(
-  //         "/Users/mac/StudioProjects/resource_handler/lib/dsl/image/proc.dart")
-  //     .showNodeDict();
-}
+typedef PatternType = List<List<String>>;
 
-///声明代码的语法规则，被[ImageDefineProc]使用
-class ImageHandleGrammar {
-  final String fileString;
-
-  ImageHandleGrammar(this.fileString);
-
-  String get className => ImageHandlerConfig.instance.className;
-
-  String get defaultBaseName => ImageHandlerConfig.instance.defaultBaseName;
-
-  String get defaultBasePath => ImageHandlerConfig.instance.defaultBasePath;
-
-  void compilationUnitRule(CompilationUnit target) {
-    for (var member in target.declarations) {
-      assert(
-          member is ClassDeclaration || member is TopLevelVariableDeclaration);
-
-      if (member is ClassDeclaration) {
-        final name = member.name.toString();
-        assert(name == className || name == _imageMetaName);
-        if (name == className) {
-          classDeclarationRule(member);
-        }
-      }
-
-      if (member is TopLevelVariableDeclaration) {
-        assert(member.variables.variables.isNotEmpty);
-        final initializer = member.variables.variables.first.initializer;
-        assert(member.variables.variables.first.initializer is ListLiteral);
-        listLiteralRule(initializer as ListLiteral);
-      }
-    }
-  }
-
-  void classDeclarationRule(ClassDeclaration target) {
-    for (var member in target.members) {
-      assert(member is FieldDeclaration || member is MethodDeclaration);
-      dynamic flag;
-      TestFile.fromString(
-        fileString,
-        node: member,
-        visit: (node, _, controller) {
-          if (node is SimpleStringLiteral) {
-            flag = node.value;
-            assert(Uri.tryParse(flag) != null);
-            controller.stop();
-          }
-          if (node is StringInterpolation) {
-            flag = node;
-            controller.stop();
-          }
-        },
-      );
-      assert(flag != null);
-
-      if (member is FieldDeclaration) {
-        assert(member.isStatic);
-        assert(member.fields.variables.isNotEmpty);
-        final name = member.fields.variables.first.name.toString();
-        assert(name != defaultBaseName ||
-            (name == defaultBaseName && flag == defaultBasePath));
-      }
-
-      if (member is MethodDeclaration) {
-        assert(member.isStatic);
-      }
-
-      for (var element in member.metadata) {
-        annotationRule(element);
-      }
-    }
-  }
-
-  void listLiteralRule(ListLiteral target) {
-    assert(target.elements.isNotEmpty);
-    for (var outer in target.elements) {
-      assert(outer is SimpleStringLiteral || outer is ListLiteral);
-      if (outer is ListLiteral) {
-        assert(outer.elements.isNotEmpty);
-        for (var inner in outer.elements) {
-          assert(inner is SimpleStringLiteral && inner.value.isNotEmpty);
-        }
-      }
-      if (outer is SimpleStringLiteral) {
-        assert(outer.value.isNotEmpty);
-      }
-    }
-  }
-
-  void annotationRule(Annotation annotation) {
-    if (annotation.name.name != _imageMetaName) {
-      return;
-    }
-    for (var expression in annotation.arguments?.arguments ?? []) {
-      assert(expression is NamedExpression);
-      final label = (expression as NamedExpression).name.label.name;
-      assert(label == _imageMetaPatterns || label == _imageMetaCiteArray);
-      final innerExpression = expression.expression;
-      assert(innerExpression is SimpleIdentifier ||
-          innerExpression is ListLiteral);
-      if (innerExpression is ListLiteral) {
-        listLiteralRule(innerExpression);
-      }
-    }
-  }
-}
-
-///图片处理运行的全局配置
-class ImageHandlerConfig {
-  ImageHandlerConfig._();
-
-  static ImageHandlerConfig? _instance;
-
-  static ImageHandlerConfig get instance =>
-      _instance ??= ImageHandlerConfig._();
-
-  List<String> get bindings => [binding, bindingX2, bindingX3];
-
-  final String className = "ImageNames";
-
-  final String defaultClassDefinePath = "lib/common/images.dart";
-
-  final String defaultBaseName = "imageBasePath";
-
-  final String binding = 'lib/resources/images/';
-
-  String get defaultBasePath =>
-      binding.split('/').where((e) => e.isNotEmpty).join('/');
-
-  String get bindingX2 => '$defaultBasePath/2.0x/';
-
-  String get bindingX3 => '$defaultBasePath/3.0x/';
-
-  final bool isOverWrite = false;
-
-  final bool needImageMeta = true;
-
-  ///清理没有被定义的图片
-  final bool cleanUndefineImage = true;
-
-  ///清理没有被引用的图片
-  final bool cleanNoCitedImageDefine = true;
-}
+typedef ArrayType = List<String>;
 
 ///图片处理运行起点与处理全流程共享变量存储
-class ImageResource {
-  ImageResource(this.projPath);
-
-  static ImageResource build(String sourceFolder, String projPath) =>
-      ImageSourceProc(sourceFolder)
-          .link(ImageBindingProc('$projPath/pubspec.yaml'))
-          .link(ImageDestinationProc())
-          .link(ImageDefineProc(projPath))
-          .link(ImageCiteProc(projPath))
-          .exec(ImageResource(projPath));
+class AssetResource {
+  AssetResource(this.projPath);
 
   final String projPath;
 
@@ -178,11 +22,46 @@ class ImageResource {
 
   late ClassDeclaration declaration;
 
+  List<String> get bindings => [];
+
+  //ImageHandlerConfig
+  String get className => "";
+
+  String get metaClassName => "";
+
+  bool get permitMetaClass => true;
+
+  String get classDefinePath => "";
+
+  String get baseName => "";
+
+  String get baseNamePath => "";
+
+  bool get needMeta => true;
+
+  String get metaClassPatternName => "";
+
+  String get metaClassArrayName => "";
+
+  String get metaClassSource => "";
+
+  bool get isOverwrite => false;
+
+  bool get cleanUndefineAsset => true;
+
+  bool get cleanNoCitedAssetDefine => true;
+
+  AssetSource archive(File f) => AssetSource(name: '', tailFix: '');
+
+  bool isValid(File f) => true;
+
+  bool isTarget(String path) => true;
+
   ///外部图片源
-  final Set<ImageSource> sources = {};
+  final Set<AssetSource> sources = {};
 
   ///项目图片源
-  final Set<ImageSource> assetSources = {};
+  final Set<AssetSource> assetSources = {};
 
   ///需要增加在class中的代码
   StringBuffer codeBuffer = StringBuffer();
@@ -194,41 +73,36 @@ class ImageResource {
 
   final Map<String, ClassMember> mappingPathToMember = {};
 
-  final Map<List<List<String>>, ClassMember> mappingPatternsToMember = {};
+  final Map<PatternType, ClassMember> mappingPatternsToMember = {};
 
-  final Map<List<String>, ClassMember> mappingArraysToMember = {};
+  final Map<ArrayType, ClassMember> mappingArraysToMember = {};
 }
 
-///数据源处理
-class ImageSourceProc<E extends ImageResource> extends FileDataSourceProc<E> {
-  ImageSourceProc(super.rootFolder);
+class AssetSourceProc<E extends AssetResource> extends FileDataSourceProc<E> {
+  AssetSourceProc(super.rootFolder);
 
-  Set<ImageSource> get sources => resource.sources;
+  Set<AssetSource> get sources => resource.sources;
 
   @override
   build() {
     recursive(fileGetter: (f) {
       ///忽略隐藏文件与非指定格式照片
-      if (!isValid(f)) {
+      if (!resource.isValid(f)) {
         return;
       }
-      final image = ImageSource.archive(f);
-      sources.add(image);
+      sources.add(resource.archive(f));
     });
   }
-
-  bool isValid(File f) => ImageSource.isImage(f.path);
 }
 
-///数据绑定处理
-class ImageBindingProc<E extends ImageResource> extends YamlDataBindingProc<E> {
-  ImageBindingProc(super.yamlPath);
+class AssetBindingProc<E extends AssetResource> extends YamlDataBindingProc<E> {
+  AssetBindingProc(super.yamlPath);
 
   static const String keywordFlutter = "flutter";
 
   static const String keywordAsset = "assets";
 
-  List<String> get bindings => ImageHandlerConfig.instance.bindings;
+  List<String> get bindings => resource.bindings;
 
   @override
   void build() {
@@ -260,16 +134,13 @@ class ImageBindingProc<E extends ImageResource> extends YamlDataBindingProc<E> {
   get yamlAsset => yamlFlutter[keywordAsset];
 }
 
-///数据源写入目标处理
-class ImageDestinationProc<E extends ImageResource>
+class AssetDestinationProc<E extends AssetResource>
     extends DataDestinationProc<E> {
-  List<String> get bindings => ImageHandlerConfig.instance.bindings;
-
-  bool isValid(File f) => ImageSource.isImage(f.path);
+  List<String> get bindings => resource.bindings;
 
   String get projPath => resource.projPath;
 
-  Set<ImageSource> get assetSources => resource.assetSources;
+  Set<AssetSource> get assetSources => resource.assetSources;
 
   @override
   void build() {
@@ -281,18 +152,16 @@ class ImageDestinationProc<E extends ImageResource>
       }
       directory.listSync().forEach((f) {
         final file = File(f.path);
-        if (file.existsSync() && isValid(file)) {
-          final image = ImageSource.archive(file);
-          assetSources.add(image);
+        if (file.existsSync() && resource.isValid(file)) {
+          assetSources.add(resource.archive(file));
         }
       });
     }
   }
 }
 
-///声明代码处理
-class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
-  ImageDefineProc(super.projPath);
+class AssetDefineProc<E extends AssetResource> extends DataDefineProc<E> {
+  AssetDefineProc(super.projPath);
 
   List<DartFile> targetFiles = [];
 
@@ -302,16 +171,25 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
 
   DartFile? target;
 
-  String get defineClassName => ImageHandlerConfig.instance.className;
+  String get defineClassName => resource.className;
 
-  String get defineClassPath =>
-      ImageHandlerConfig.instance.defaultClassDefinePath;
+  String get defineClassPath => resource.classDefinePath;
 
-  String get defaultBaseName => ImageHandlerConfig.instance.defaultBaseName;
+  String get defaultBaseName => resource.baseName;
 
-  String get defaultBasePath => ImageHandlerConfig.instance.defaultBasePath;
+  String get defaultBasePath => resource.baseNamePath;
 
-  bool get needMeta => ImageHandlerConfig.instance.needImageMeta;
+  String get metaClassName => resource.metaClassName;
+
+  bool get needMeta => resource.needMeta;
+
+  bool get permitMetaClass => resource.permitMetaClass;
+
+  String get metaClassPatternName => resource.metaClassPatternName;
+
+  String get metaClassArrayName => resource.metaClassArrayName;
+
+  String get metaClassSource => resource.metaClassSource;
 
   final Map<String, TopLevelVariableDeclaration> mappingNameToConstArray = {};
 
@@ -324,10 +202,10 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
   Map<String, ClassMember> get mappingPathToMember =>
       resource.mappingPathToMember;
 
-  Map<List<List<String>>, ClassMember> get mappingPatternsToMember =>
+  Map<PatternType, ClassMember> get mappingPatternsToMember =>
       resource.mappingPatternsToMember;
 
-  Map<List<String>, ClassMember> get mappingArraysToMember =>
+  Map<ArrayType, ClassMember> get mappingArraysToMember =>
       resource.mappingArraysToMember;
 
   StringBuffer get codeBuffer => resource.codeBuffer;
@@ -338,8 +216,19 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
     final unit = declaration!.parent as CompilationUnit;
     resource.defineFile = target!;
     resource.declaration = declaration!;
-    ImageHandleGrammar(target!.fileString).compilationUnitRule(unit);
-    dataFromImageDefine();
+    final grammar = Grammar1(
+      fileString: target!.fileString,
+      className: defineClassName,
+      defaultBaseName: defaultBaseName,
+      defaultBasePath: defaultBasePath,
+      metaClassName: metaClassName,
+      permitMetaClass: permitMetaClass,
+      permitConstStringLiteral: permitMetaClass,
+      metaClassPatternName: metaClassPatternName,
+      metaClassArrayName: metaClassArrayName,
+    );
+    grammar.compilationUnitRule(unit);
+    dataFromClassDefine();
   }
 
   ///处理[defineClassName],如果项目中不存在,则在指定位置创建
@@ -356,7 +245,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
       }
     }
     if (declaration == null) {
-      _handleImageDefineCreate();
+      _handleClassDefineCreate();
       for (var file in targetFiles) {
         if (_handleClassDeclaration(file.latestFileString)) {
           target = file;
@@ -364,7 +253,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
         }
       }
     }
-    _handleImageMetaDefineCreate();
+    _handleClassMetaDefineCreate();
   }
 
   ///处理[ClassDeclaration]
@@ -379,8 +268,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
           isTarget = true;
           declaration = node;
         }
-        if (node is ClassDeclaration &&
-            node.name.toString() == _imageMetaName) {
+        if (node is ClassDeclaration && node.name.toString() == metaClassName) {
           meta = node;
         }
         if (controller.depth == 3) {
@@ -392,7 +280,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
   }
 
   ///在指定位置创建[defineClassName]
-  void _handleImageDefineCreate() {
+  void _handleClassDefineCreate() {
     final file = File('$projPath/$defineClassPath');
     if (file.existsSync()) {
       file.deleteSync();
@@ -403,7 +291,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
         static const String $defaultBaseName = '$defaultBasePath';
       }
       
-      ${needMeta ? _imageMetaSource : ""}
+      ${needMeta ? metaClassSource : ""}
       """));
     projDart.acceptPack = (pack) => pack.isMainProj;
     projDart.acceptDartFile = (f) => f.filePath == file.path;
@@ -413,17 +301,17 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
   }
 
   ///处理[_imageMetaName],如果项目中不存在,则在指定位置创建
-  void _handleImageMetaDefineCreate() {
+  void _handleClassMetaDefineCreate() {
     if (needMeta && meta == null) {
       File(target!.filePath).writeAsStringSync(DartFormatter().format("""
        ${target!.latestFileString}\n
-       $_imageMetaSource
+       $metaClassSource
        """));
     }
   }
 
   ///从[defineClassName]定义中获取数据
-  void dataFromImageDefine() {
+  void dataFromClassDefine() {
     final unit = declaration!.parent as CompilationUnit;
     for (var member in unit.declarations) {
       if (member is TopLevelVariableDeclaration) {
@@ -467,7 +355,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
   ///从[StringInterpolation]与[SimpleStringLiteral]中获取数据
   void _dataFromStringDefine(AstNode node, ClassMember member) {
     if (node is SimpleStringLiteral) {
-      if (ImageSource.isImage(node.value)) {
+      if (resource.isTarget(node.value)) {
         mappingPathToMember[node.value] = member;
       }
     }
@@ -494,7 +382,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
           break;
         }
       }
-      if (isDirect && ImageSource.isImage(path)) {
+      if (isDirect && resource.isTarget(path)) {
         mappingPathToMember[path] = member;
       }
     }
@@ -506,7 +394,7 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
       return;
     }
     for (var e in member.metadata) {
-      if (e.name.name != _imageMetaName) {
+      if (e.name.name != metaClassName) {
         continue;
       }
       e.arguments?.arguments.forEach((expression) {
@@ -524,9 +412,9 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
         } else {
           list = [];
         }
-        if (name == _imageMetaPatterns) {
+        if (name == metaClassPatternName) {
           mappingPatternsToMember[list] = member;
-        } else if (name == _imageMetaCiteArray) {
+        } else if (name == metaClassArrayName) {
           mappingArraysToMember[list.first] = member;
         }
       });
@@ -551,35 +439,32 @@ class ImageDefineProc<E extends ImageResource> extends DataDefineProc<E> {
   }
 }
 
-///声明引用处理：
-/// code define -> asset
-/// use code define  -> code define
-class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
-  ImageCiteProc(super.projPath);
+class AssetCitePorc<E extends AssetResource> extends DataCiteProc<E> {
+  AssetCitePorc(super.projPath);
 
-  final List<ImageSource> undefineAssetSources = [];
+  final List<AssetSource> undefineAssetSources = [];
 
   final List<ClassMember> citedMember = [];
 
   final List<ClassMember> discardMember = [];
 
-  Set<ImageSource> get sources => resource.sources;
+  Set<AssetSource> get sources => resource.sources;
 
-  Set<ImageSource> get assetSources => resource.assetSources;
+  Set<AssetSource> get assetSources => resource.assetSources;
 
-  bool get isOverwrite => ImageHandlerConfig.instance.isOverWrite;
+  bool get isOverwrite => resource.isOverwrite;
 
-  bool get cleanUndefine => ImageHandlerConfig.instance.cleanUndefineImage;
+  bool get cleanUndefine => resource.cleanUndefineAsset;
 
-  bool get cleanNoCite => ImageHandlerConfig.instance.cleanNoCitedImageDefine;
+  bool get cleanNoCite => resource.cleanNoCitedAssetDefine;
 
-  String get defineBaseName => ImageHandlerConfig.instance.defaultBaseName;
+  String get defineBaseName => resource.baseName;
 
   StringBuffer get codeBuffer => resource.codeBuffer;
 
-  String get binding => ImageHandlerConfig.instance.binding;
+  String get baseNamePath => resource.baseNamePath;
 
-  String get className => ImageHandlerConfig.instance.className;
+  String get className => resource.className;
 
   DartFile get file => resource.defineFile;
 
@@ -670,18 +555,18 @@ class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
       bool isDuplicate = assetSources
           .where(
             (s) =>
-                s.fullImageName == source.fullImageName &&
+                s.fullName == source.fullName &&
                 !undefineAssetSources.contains(s),
           )
           .isNotEmpty;
       if (isDuplicate && !isOverwrite) {
         sources.remove(source);
-        analyzerLog('Duplicate Image: ${source.fullImageName}');
+        analyzerLog('Duplicate Source: ${source.fullName}');
       } else if (source.isValid()) {
-        source.shrinkImage();
+        source.shrink();
       } else {
         sources.remove(source);
-        analyzerLog('Invalid Image\'s Name: ${source.fullImageName}');
+        analyzerLog('Invalid Source\'s Name: ${source.fullName}');
       }
     }
   }
@@ -689,9 +574,9 @@ class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
   void writeSource() {
     for (var source in sources) {
       codeBuffer.writeln("""
-        static const String  ${source.imageName} = '\$$defineBaseName/${source.fullImageName}';
+        static const String  ${source.name} = '\$$defineBaseName/${source.fullName}';
       """);
-      source.moveTo('$projPath/$binding');
+      source.moveTo('$projPath/$baseNamePath');
     }
 
     final token = declaration.testToken(file);
@@ -705,9 +590,9 @@ class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
     );
   }
 
-  bool _pathInclude(ImageSource source) {
+  bool _pathInclude(AssetSource source) {
     for (var path in mappingPathToMember.keys) {
-      if (Uri.parse(path).pathSegments.last == source.fullImageName) {
+      if (Uri.parse(path).pathSegments.last == source.fullName) {
         final member = mappingPathToMember[path];
         return !discardMember.contains(member);
       }
@@ -719,8 +604,8 @@ class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
   ///A*
   ///A*B
   ///A*B1*BN*C
-  bool _patternInclude(ImageSource source) {
-    final name = source.fullImageName;
+  bool _patternInclude(AssetSource source) {
+    final name = source.fullName;
     bool isMatch = false;
     for (var patterns in mappingPatternsToMember.keys) {
       for (var pattern in patterns) {
@@ -735,8 +620,8 @@ class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
     return isMatch;
   }
 
-  bool _arrayInclude(ImageSource source) {
-    final name = source.fullImageName;
+  bool _arrayInclude(AssetSource source) {
+    final name = source.fullName;
     for (var array in mappingArraysToMember.keys) {
       for (var part in array) {
         if (name.toLowerCase().contains(part.toLowerCase())) {
@@ -776,29 +661,3 @@ class ImageCiteProc<E extends ImageResource> extends DataCiteProc<E> {
     return ptr > patternSlice.length - 1;
   }
 }
-
-///代码段定义，被[ImageDefineProc]使用
-const String _imageMetaName = "ImageMeta";
-
-const String _imageMetaPatterns = "patterns";
-
-const String _imageMetaCiteArray = "citeArray";
-
-const String _imageMetaSource = """
-///部分图片没有直接使用字符串常量索引，通过注解提供两种间接表示图片名称的方式，
-///- [$_imageMetaPatterns]用于表示图片一定包含的字符常量片段的数组，
-///该字段一般用于含有索引的图片组，
-///例如某一特征为['iconSunSign', '.png']，则其对应的正则表达式为['iconSunSign*.png']
-///- [$_imageMetaCiteArray]用于表示对一个定义于本文件的常量列表的引用
-///该字段一般用于关联性较强的字符串类型的图片组，
-///当声明[$_imageMetaCiteArray]之后，会在图片自动化时寻找到相应的常量数组并提取其中的字符串常量
-class $_imageMetaName {
-  final List<List<String>> $_imageMetaPatterns;
-  final List<String> $_imageMetaCiteArray;
-
-  const $_imageMetaName({
-    this.$_imageMetaPatterns = const [],
-    this.$_imageMetaCiteArray = const [],
-  });
-}
-""";

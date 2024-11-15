@@ -4,12 +4,12 @@ import 'dart:math';
 import 'package:analyzer_query/proj_path/yaml_file.dart';
 import 'package:resource_handler/base/resource.dart';
 
-abstract class DataBindingPorc<E> extends ResourceHandler<E> {}
+abstract class DataBindingProc<E> extends ResourceHandler<E> {}
 
 ///Yaml类型的数据绑定处理
-abstract class YamlDataBindingProc<E> extends DataBindingPorc<E> {
+abstract class YamlDataBindingProc<E> extends DataBindingProc<E> {
   ///数据来源所在的根目录
-  final String yamlPath;
+  late final String yamlPath;
 
   late final Map<String, dynamic> yamlMap;
 

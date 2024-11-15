@@ -1,3 +1,3 @@
 import 'resource.dart';
 
-abstract class DataDestinationPorc<E> extends ResourceHandler<E> {}
+abstract class DataDestinationProc<E> extends ResourceHandler<E> {}

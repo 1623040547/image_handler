@@ -3,8 +3,8 @@ import 'package:analyzer_query/proj_path/package.dart';
 
 import 'resource.dart';
 
-abstract class DataDefinePorc<E> extends ResourceHandler<E> {
-  DataDefinePorc(this.projPath);
+abstract class DataDefineProc<E> extends ResourceHandler<E> {
+  DataDefineProc(this.projPath);
 
   final String projPath;
 
