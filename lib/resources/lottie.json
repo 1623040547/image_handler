@@ -1,0 +1,13 @@
+{
+  "binding": "lib/resources/lottie/",
+  "className": "LottieNames",
+  "metaClassName": "",
+  "classDefinePath": "lib/common/lottieNames.dart",
+  "baseName": "lottieBasePath",
+  "permitMetaClass": false,
+  "needMeta": false,
+  "needOverwrite": true,
+  "cleanUndefineAsset": true,
+  "cleanNoCitedAssetDefine": true,
+  "needBinding": true
+}
