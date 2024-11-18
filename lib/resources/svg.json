@@ -1,0 +1,13 @@
+{
+  "binding": "lib/resources/svg/",
+  "className": "SvgNames",
+  "metaClassName": "",
+  "classDefinePath": "lib/common/svgNames.dart",
+  "baseName": "svgBasePath",
+  "permitMetaClass": false,
+  "needMeta": false,
+  "needOverwrite": false,
+  "cleanUndefineAsset": true,
+  "cleanNoCitedAssetDefine": true,
+  "needBinding": true
+}

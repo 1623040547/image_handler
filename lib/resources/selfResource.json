@@ -1,0 +1,13 @@
+{
+  "binding": "lib/resources/",
+  "className": "ResourceNames",
+  "metaClassName": "",
+  "classDefinePath": "lib/common/resources.dart",
+  "baseName": "basePath",
+  "permitMetaClass": false,
+  "needMeta": false,
+  "needOverwrite": true,
+  "cleanUndefineAsset": false,
+  "cleanNoCitedAssetDefine": false,
+  "needBinding": false
+}

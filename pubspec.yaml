@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: any
   image: any
+  json_annotation: any
   analyzer_query:
     path: extern/analyzer_query
 
@@ -21,5 +22,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: any
+  build_runner: any
+  json_serializable: any
 
 uses-material-design: true

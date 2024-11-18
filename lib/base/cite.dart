@@ -3,11 +3,9 @@ import 'package:analyzer_query/proj_path/package.dart';
 
 import 'resource.dart';
 
-abstract class DataCiteProc<E> extends ResourceHandler<E> {
-  final String projPath;
-
+abstract class DataCiteProc<E extends BaseResource> extends ResourceHandler<E> {
   late final ProjectDart projDart =
-      ProjectDart(PackageConfig.fromProj(projPath));
+      ProjectDart(PackageConfig.fromProj(resource.projPath));
 
-  DataCiteProc(this.projPath);
+  DataCiteProc();
 }

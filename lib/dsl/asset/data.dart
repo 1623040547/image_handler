@@ -1,4 +1,4 @@
-class AssetSource {
+abstract class AssetSource {
   String name = '';
 
   String tailFix = '';
@@ -10,11 +10,9 @@ class AssetSource {
 
   String get fullName => '$name.$tailFix';
 
-  void moveTo(String path) {}
+  void moveTo(String path);
 
-  void delete() {}
+  void delete();
 
-  void shrink(){}
-
-  bool isValid() => true;
+  bool sourceIsValid();
 }

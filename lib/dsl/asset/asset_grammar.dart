@@ -1,16 +1,16 @@
-import 'package:analyzer_query/tester.dart';
+import 'asset.dart';
 
 /// class [className] {
 ///
-/// static const String [defaultBaseName] = '[defaultBasePath]';
+/// static const String [baseName] = '[basePath]';
 ///
-/// static const String example_1 = '[defaultBaseName]/test.png';
+/// static const String example_1 = '[baseName]/test.png';
 ///
 /// @[metaClassName](\
 ///   [metaClassPatternName]': [['iconSunSign', '.png']],\
 ///   [metaClassArrayName]': horoscopeTypeList ,\
 /// )\
-/// static String getByName(String name) => '[defaultBaseName]/$name.svg';
+/// static String getByName(String name) => '[baseName]/$name.svg';
 ///
 /// }
 ///
@@ -29,14 +29,14 @@ import 'package:analyzer_query/tester.dart';
 ///   const ImageMeta({this.[metaClassPatternName] = const [], this.[metaClassArrayName] = const []});
 /// }
 ///
-class Grammar1 {
+class AssetGrammar {
   final String fileString;
 
   final String className;
 
-  final String defaultBaseName;
+  final String baseName;
 
-  final String defaultBasePath;
+  final String basePath;
 
   final String metaClassName;
 
@@ -48,11 +48,11 @@ class Grammar1 {
 
   final bool permitConstStringLiteral;
 
-  Grammar1({
+  AssetGrammar({
     required this.fileString,
     required this.className,
-    required this.defaultBaseName,
-    required this.defaultBasePath,
+    required this.baseName,
+    required this.basePath,
     required this.metaClassName,
     required this.permitMetaClass,
     required this.permitConstStringLiteral,
@@ -111,8 +111,8 @@ class Grammar1 {
         assert(member.isStatic);
         assert(member.fields.variables.isNotEmpty);
         final name = member.fields.variables.first.name.toString();
-        assert(name != defaultBaseName ||
-            (name == defaultBaseName && flag == defaultBasePath));
+        assert((name != baseName && flag != basePath) ||
+            (name == baseName && flag == basePath));
       }
 
       if (member is MethodDeclaration) {

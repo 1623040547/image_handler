@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:resource_handler/base/resource.dart';
 
-abstract class DataSourceProc<E> extends ResourceHandler<E> {}
+abstract class DataSourceProc<E extends BaseResource>
+    extends ResourceHandler<E> {}
 
 ///文件类型的数据源处理
-abstract class FileDataSourceProc<E> extends DataSourceProc<E> {
+abstract class FileDataSourceProc<E extends BaseResource>
+    extends DataSourceProc<E> {
   ///数据来源所在的根目录
   final String rootFolder;
 

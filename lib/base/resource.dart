@@ -1,10 +1,31 @@
-abstract class ResourceHandler<E> {
-  E? _resource;
+import 'package:analyzer_query/proj_path/package.dart';
 
-  E get resource {
-    assert(_resource != null, 'Run exec() before call this method.');
-    return _resource!;
+String get configPath =>
+    rootProj.packages.firstWhere((e) => e.name == 'resource_handler').projPath;
+
+abstract class BaseResource {
+  final String projPath;
+
+  BaseResource(this.projPath);
+
+  final Set<dynamic> _impls = {};
+
+  void set(dynamic impl) {
+    _impls.add(impl);
   }
+
+  E get<E>() {
+    for (var element in _impls) {
+      if (element is E) {
+        return element;
+      }
+    }
+    throw Exception('no such element.');
+  }
+}
+
+abstract class ResourceHandler<E extends BaseResource> {
+  late final E resource;
 
   ResourceHandler? _front;
 
@@ -14,7 +35,7 @@ abstract class ResourceHandler<E> {
 
   void build();
 
-  ResourceHandler link(ResourceHandler handler) {
+  ResourceHandler<E> link(ResourceHandler<E> handler) {
     _next = handler;
     handler._front = this;
     return handler;
@@ -23,11 +44,11 @@ abstract class ResourceHandler<E> {
   ///始终从头节点开始执行
   E exec(E resource) {
     header._exec(resource);
-    return header.resource;
+    return header.resource as E;
   }
 
-  void _exec(E resource) {
-    _resource = resource;
+  void _exec(BaseResource resource) {
+    this.resource = resource as E;
     build();
     _next?._exec(resource);
   }

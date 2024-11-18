@@ -1,0 +1,13 @@
+{
+  "binding": "lib/resources/images/",
+  "className": "ImageNames",
+  "metaClassName": "ImageMeta",
+  "classDefinePath": "lib/common/images.dart",
+  "baseName": "imageBasePath",
+  "permitMetaClass": true,
+  "needMeta": true,
+  "needOverwrite": false,
+  "cleanUndefineAsset": true,
+  "cleanNoCitedAssetDefine": true,
+  "needBinding": true
+}

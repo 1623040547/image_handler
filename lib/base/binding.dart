@@ -4,21 +4,19 @@ import 'dart:math';
 import 'package:analyzer_query/proj_path/yaml_file.dart';
 import 'package:resource_handler/base/resource.dart';
 
-abstract class DataBindingProc<E> extends ResourceHandler<E> {}
+abstract class DataBindingProc<E extends BaseResource>
+    extends ResourceHandler<E> {}
 
 ///Yaml类型的数据绑定处理
-abstract class YamlDataBindingProc<E> extends DataBindingProc<E> {
-  ///数据来源所在的根目录
-  late final String yamlPath;
+abstract class YamlDataBindingProc<E extends BaseResource>
+    extends DataBindingProc<E> {
+  String get yamlPath => "${resource.projPath}/pubspec.yaml";
 
-  late final Map<String, dynamic> yamlMap;
-
-  YamlDataBindingProc(this.yamlPath) {
+  Map<String, dynamic> get yamlMap {
     try {
-      final map = YamlFile(yamlPath).yamlMap;
-      yamlMap = map;
+      return YamlFile(yamlPath).yamlMap;
     } catch (e) {
-      yamlMap = {};
+      return {};
     }
   }
 
@@ -47,7 +45,5 @@ abstract class YamlDataBindingProc<E> extends DataBindingProc<E> {
       index += 1;
     }
     File(yamlPath).writeAsStringSync(lines.join('\n'));
-    yamlMap.clear();
-    yamlMap.addAll(YamlFile(yamlPath).yamlMap);
   }
 }
