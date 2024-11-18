@@ -26,9 +26,6 @@ class JsonConfig extends AssetConfig {
       binding.split('/').where((e) => e.isNotEmpty).join('/');
 
   @override
-  List<String> get bindings => [binding];
-
-  @override
   String get metaClassArrayName => "";
 
   @override
@@ -101,6 +98,9 @@ class JsonResource extends AssetResource {
     final isHidden = name.startsWith('.');
     return isImage && !isHidden;
   }
+
+  @override
+  List<String> get bindings => [config.binding];
 }
 
 extension on Uri {

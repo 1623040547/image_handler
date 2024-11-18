@@ -7,7 +7,7 @@ class AssetBindingProc<E extends AssetResource> extends YamlDataBindingProc<E> {
 
   final String keywordAsset = "assets";
 
-  List<String> get bindings => resource.config.bindings;
+  List<String> get bindings => resource.bindings;
 
   @override
   void build() {

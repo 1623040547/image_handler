@@ -28,10 +28,6 @@ class ImageConfig extends AssetConfig {
       binding.split('/').where((e) => e.isNotEmpty).join('/');
 
   @override
-  List<String> get bindings =>
-      [binding, '$baseNamePath/2.0x/', '$baseNamePath/3.0x/'];
-
-  @override
   String get metaClassArrayName => "citeArray";
 
   @override
@@ -201,6 +197,13 @@ class ImageResource extends AssetResource {
     final isHidden = name.startsWith('.');
     return isImage && !isHidden;
   }
+
+  @override
+  List<String> get bindings => [
+        config.binding,
+        '${config.baseNamePath}/2.0x/',
+        '${config.baseNamePath}/3.0x/',
+      ];
 }
 
 extension on Uri {

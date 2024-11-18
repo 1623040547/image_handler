@@ -5,4 +5,5 @@ class ResourceNames {
 
   static const String image = '$basePath/image.json';
   static const String svg = '$basePath/svg.json';
+  static const String lottie = '$basePath/lottie.json';
 }

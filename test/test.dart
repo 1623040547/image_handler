@@ -21,4 +21,10 @@ void main() {
   //   '/Users/mac/StudioProjects/my_healer',
   //   ResourceNames.svg,
   // );
+
+  LottieResource.build(
+    '/Users/mac/StudioProjects/resource_handler/test',
+    '/Users/mac/StudioProjects/diviner',
+    ResourceNames.lottie,
+  );
 }

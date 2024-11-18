@@ -14,3 +14,4 @@ export 'package:json_annotation/json_annotation.dart';
 
 export 'image/image.dart';
 export 'json/json.dart';
+export 'lottie/lottie.dart';

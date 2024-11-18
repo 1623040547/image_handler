@@ -44,8 +44,6 @@ abstract class AssetConfig {
   String get metaClassSource;
 
   String get baseNamePath;
-
-  List<String> get bindings;
 }
 
 ///图片处理运行起点与处理全流程共享变量存储
@@ -100,4 +98,6 @@ abstract class AssetResource extends BaseResource {
   ClassDeclaration get declaration => get<AssetDefineImpl>().declaration!;
 
   DartFile get targetFile => get<AssetDefineImpl>().targetFile!;
+
+  List<String> get bindings;
 }

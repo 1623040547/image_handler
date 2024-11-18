@@ -4,7 +4,7 @@ import 'asset.dart';
 ///
 /// static const String [baseName] = '[basePath]';
 ///
-/// static const String example_1 = '[baseName]/test.png';
+/// static const String `name` = '[baseName]/`fullName`.png';
 ///
 /// @[metaClassName](\
 ///   [metaClassPatternName]': [['iconSunSign', '.png']],\
