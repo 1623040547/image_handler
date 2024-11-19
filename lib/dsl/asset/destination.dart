@@ -7,6 +7,8 @@ abstract class AssetDestinationImpl<E extends AssetResource>
   String get projPath => resource.projPath;
 
   List<String> get bindings => resource.bindings;
+
+  String get binding => resource.config.binding;
 }
 
 class AssetDestinationProc<E extends AssetResource>
@@ -14,23 +16,20 @@ class AssetDestinationProc<E extends AssetResource>
   @override
   void build() {
     resource.set(this);
-    for (var bindingPath in bindings) {
-      final path = '$projPath/$bindingPath';
-      try {
-        final directory = Directory(path);
-        if (!directory.existsSync()) {
-          directory.createSync(recursive: true);
-        }
-        directory.listSync().forEach((f) {
-          final file = File(f.path);
-          if (file.existsSync() && resource.pathIsTarget(file.path)) {
-            assetSources.add(resource.archive(file));
-          }
-        });
-        analyzerLog('binding folder: $bindingPath');
-      } catch (e) {
-        analyzerLog('binding file: $bindingPath');
+    final path = '$projPath/$binding';
+    try {
+      final directory = Directory(path);
+      if (!directory.existsSync()) {
+        directory.createSync(recursive: true);
       }
+      directory.listSync(recursive: true).forEach((f) {
+        final file = File(f.path);
+        if (file.existsSync() && resource.pathIsTarget(file.path)) {
+          assetSources.add(resource.archive(file));
+        }
+      });
+    } catch (e) {
+      analyzerLog('binding file: $binding');
     }
   }
 }

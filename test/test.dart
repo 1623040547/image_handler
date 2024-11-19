@@ -10,6 +10,12 @@ void main() {
   //   ResourceNames.selfResource,
   // );
 
+  JsonResource.build(
+    '/Users/mac/StudioProjects/resource_handler/test',
+    '/Users/mac/StudioProjects/my_healer',
+    ResourceNames.json,
+  );
+
   // ImageResource.build(
   //   '/Users/mac/StudioProjects/resource_handler/test',
   //   '/Users/mac/StudioProjects/diviner',
@@ -22,9 +28,15 @@ void main() {
   //   ResourceNames.svg,
   // );
 
-  LottieResource.build(
-    '/Users/mac/StudioProjects/resource_handler/test',
-    '/Users/mac/StudioProjects/diviner',
-    ResourceNames.lottie,
-  );
+  // LottieResource.build(
+  //   '/Users/mac/StudioProjects/resource_handler/test',
+  //   '/Users/mac/StudioProjects/my_healer',
+  //   ResourceNames.lottie,
+  // );
+
+  // MediaResource.build(
+  //   '/Users/mac/StudioProjects/resource_handler/test',
+  //   '/Users/mac/StudioProjects/my_healer',
+  //   ResourceNames.media,
+  // );
 }

@@ -33,6 +33,8 @@ abstract class AssetCiteProcImpl<E extends AssetResource>
   StringBuffer get codeBuffer => resource.codeBuffer;
 
   AssetConfig get config => resource.config;
+
+  Function() get removeNoResourceBindings => resource.removeNoResourceBindings;
 }
 
 class AssetCiteProc<E extends AssetResource> extends AssetCiteProcImpl<E> {
@@ -72,6 +74,8 @@ class AssetCiteProc<E extends AssetResource> extends AssetCiteProcImpl<E> {
 
     ///写入需要导入的资源文件
     writeSource();
+
+    removeNoResourceBindings.call();
   }
 
   ///因为内部成员只能是静态类，针对这些成员的引用只有一种格式
@@ -180,7 +184,7 @@ class AssetCiteProc<E extends AssetResource> extends AssetCiteProcImpl<E> {
 
   bool _pathInclude(AssetSource source) {
     for (var path in mappingPathToMember.keys) {
-      if (Uri.parse(path).pathSegments.last == source.fullName) {
+      if (path == '$baseNamePath/${source.fullName}') {
         final member = mappingPathToMember[path];
         return !discardMember.contains(member);
       }

@@ -2,7 +2,7 @@
   "binding": "lib/resources/lottie/",
   "className": "LottieNames",
   "metaClassName": "",
-  "classDefinePath": "lib/common/lottieNames.dart",
+  "classDefinePath": "lib/common/lottie.dart",
   "baseName": "lottieBasePath",
   "permitMetaClass": false,
   "needMeta": false,

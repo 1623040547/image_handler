@@ -1,9 +1,9 @@
 {
-  "binding": "lib/resources/svg/",
-  "className": "SvgNames",
+  "binding": "lib/resources/medias/",
+  "className": "MediaNames",
   "metaClassName": "",
-  "classDefinePath": "lib/common/svgs.dart",
-  "baseName": "svgBasePath",
+  "classDefinePath": "lib/common/medias.dart",
+  "baseName": "mediaBasePath",
   "permitMetaClass": false,
   "needMeta": false,
   "needOverwrite": false,

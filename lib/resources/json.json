@@ -1,9 +1,9 @@
 {
-  "binding": "lib/resources/svg/",
-  "className": "SvgNames",
+  "binding": "lib/resources/json/",
+  "className": "JsonNames",
   "metaClassName": "",
-  "classDefinePath": "lib/common/svgs.dart",
-  "baseName": "svgBasePath",
+  "classDefinePath": "lib/common/json.dart",
+  "baseName": "jsonBasePath",
   "permitMetaClass": false,
   "needMeta": false,
   "needOverwrite": false,

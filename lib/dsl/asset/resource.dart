@@ -73,6 +73,9 @@ abstract class AssetResource extends BaseResource {
 
   Set<AssetSource> get sources => get<AssetSourceImpl>().sources;
 
+  Function() get removeNoResourceBindings =>
+      get<AssetBindingProcImpl>().removeNoResourceBindings;
+
   Set<AssetSource> get assetSources => get<AssetDestinationImpl>().assetSources;
 
   Map<ClassMember, String> get mappingMemberToName =>

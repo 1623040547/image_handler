@@ -101,6 +101,7 @@ class LottieSource extends AssetSource {
         final String newImagePath =
             '$newImageFolderPath/${f.uri.pathSegments.last}';
         f.copySync(newImagePath).createSync();
+        f.deleteSync();
       }
     }
 
@@ -150,7 +151,7 @@ class LottieResource extends AssetResource {
 
   @override
   List<String> get bindings {
-    final List<String> result = [];
+    final List<String> result = [config.binding];
     for (var source in sources) {
       source = source as LottieSource;
       result.add('${config.baseNamePath}/${source.folderName}/data.json');

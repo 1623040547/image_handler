@@ -25,6 +25,8 @@ abstract class AssetDefineImpl<E extends AssetResource>
   final StringBuffer codeBuffer = StringBuffer();
 
   AssetConfig get config => resource.config;
+
+  Set<AssetSource> get sources => resource.sources;
 }
 
 class AssetDefineProc<E extends AssetResource> extends AssetDefineImpl<E> {

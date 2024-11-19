@@ -92,11 +92,11 @@ class SvgResource extends AssetResource {
   @override
   bool pathIsTarget(String path) {
     final name = Uri.parse(path).pathSegments.last;
-    final isImage = ['svg'].contains(
+    final isSvg = ['svg'].contains(
       name.split('.').last,
     );
     final isHidden = name.startsWith('.');
-    return isImage && !isHidden;
+    return isSvg && !isHidden;
   }
 
   @override
