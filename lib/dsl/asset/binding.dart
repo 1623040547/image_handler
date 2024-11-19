@@ -69,7 +69,7 @@ class AssetBindingProc<E extends AssetResource>
       case FileSystemEntityType.directory:
         final dir = Directory(path);
         needRemove =
-            !dir.existsSync() || dir.listSync().whereType<File>().isEmpty;
+            !dir.existsSync() || dir.listSync(recursive: true).whereType<File>().isEmpty;
         break;
       case FileSystemEntityType.file:
         needRemove = !File(path).existsSync();
