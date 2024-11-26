@@ -105,7 +105,7 @@ class AssetCiteProc<E extends AssetResource> extends AssetCiteProcImpl<E> {
   }
 
   void checkCitedResourceExist(ClassMember member) {
-    final path = '$projPath/${mappingMemberToPath[member]!}';
+    final path = '$projPath/${mappingMemberToPath[member] ?? 'N/A'}';
     if (!File(path).existsSync()) {
       final name = mappingMemberToName[member];
       analyzerLog('[Error] resource `$name` is missing. path: \n$path\n');
