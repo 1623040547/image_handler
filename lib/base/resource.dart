@@ -1,9 +1,9 @@
 import 'package:analyzer_query/proj_path/package.dart';
 
-String get configPath => ProjectCollection.instance.projPackages
+String get configPath =>  ProjectCollection.instance.projPackages
     .expand((e) => e.packages)
     .firstWhere((e) => e.name == 'resource_handler')
-    .path;
+    .packagePath;
 
 abstract class BaseResource {
   final String projPath;
